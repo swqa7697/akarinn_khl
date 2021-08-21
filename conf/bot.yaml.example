@@ -1,0 +1,12 @@
+# 使用前请先把该文件重命名为"bot.yaml"
+
+general:
+  time_zone: 8 # 时区
+  api_root: 'http://127.0.0.1:8000' # 后端（akarinn）的访问链接
+  mode: new # new：日服新版打法（五个王同时可打）；legacy：老版打法（只能按顺序打）
+
+khl:
+  # 这里填机器人的凭证信息
+  client_id: 'xxxxxxxxxxx'
+  token: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  client_secret: 'xxxxxxxxxxxxxx'
