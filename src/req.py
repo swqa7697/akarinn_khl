@@ -2,8 +2,8 @@ from typing import List
 
 import aiohttp
 
-from src import schemas
-from src.config import api_root
+import schemas
+from config import api_root
 
 
 async def get_status() -> schemas.StatusRet:

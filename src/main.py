@@ -3,8 +3,8 @@ from datetime import datetime, date, timedelta
 
 from khl import Bot, Cert, TextMsg, logger
 
-from src.config import conf_general, conf_khl
-from src.req import get_status, today_battle_count, today_battle_logs, add_member, get_game_id, commit_battle, \
+from config import conf_general, conf_khl
+from req import get_status, today_battle_count, today_battle_logs, add_member, get_game_id, commit_battle, \
     commit_current_battle, get_current_battle
 
 bot = Bot(cert=Cert(**conf_khl()))
@@ -42,17 +42,17 @@ async def info(msg: TextMsg):
 
     card = [{
         "type":
-        "card",
+            "card",
         "size":
-        "lg",
+            "lg",
         "theme":
-        "info",
+            "info",
         "modules": [{
             "type": "header",
             "text": f"当前进度：{status.glob.round} 周目"
         }, *[{
             "type":
-            "action-group",
+                "action-group",
             "elements": [{
                 "type": "button",
                 "theme": {
@@ -113,13 +113,13 @@ async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
         resp = await commit_battle({
             "who": (await get_game_id(msg.author_id))[0],
             "which_day":
-            str(real_day),
+                str(real_day),
             "which_round":
-            status.glob.round,
+                status.glob.round,
             "which_boss":
-            int(boss),
+                int(boss),
             "damage":
-            dmg,
+                dmg,
             "executor": (await get_game_id(msg.author_id))[0]
         })
 
@@ -127,11 +127,11 @@ async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
         which = status.detail[resp.log.which_boss - 1]
         card = [{
             "type":
-            "card",
+                "card",
             "size":
-            "lg",
+                "lg",
             "theme":
-            "info",
+                "info",
             "modules": [{
                 "type": "section",
                 "text": f"报刀成功，当前进度：{status.glob.round} 周目",
@@ -144,7 +144,7 @@ async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
                         'waiting': 'info'
                     }[which.status.value],
                     "text":
-                    f"{resp.log.which_boss} 王：{which.hp}/{which.max_hp}"
+                        f"{resp.log.which_boss} 王：{which.hp}/{which.max_hp}"
                 }
             }]
         }]
@@ -215,30 +215,30 @@ async def weidao(msg: TextMsg, which_boss: str, day: str = ''):
         resp = await commit_battle({
             "who": (await get_game_id(msg.author_id))[0],
             "which_day":
-            str(real_day),
+                str(real_day),
             "which_round":
-            status.glob.round,
+                status.glob.round,
             "which_boss":
-            which_boss,
+                which_boss,
             "damage":
-            dmg,
+                dmg,
             "executor": (await get_game_id(msg.author_id))[0]
         })
 
         status = resp.status
         card = [{
             "type":
-            "card",
+                "card",
             "size":
-            "lg",
+                "lg",
             "theme":
-            "info",
+                "info",
             "modules": [{
                 "type": "section",
                 "text": f"报刀成功，当前进度：{status.glob.round} 周目"
             }, *[{
                 "type":
-                "action-group",
+                    "action-group",
                 "elements": [{
                     "type": "button",
                     "theme": {
@@ -273,11 +273,11 @@ async def enter(msg: TextMsg, which_boss: str, comment: str = ''):
             "who": (await get_game_id(msg.author_id))[0],
             "executor": (await get_game_id(msg.author_id))[0],
             "which_boss":
-            int(which_boss),
+                int(which_boss),
             "type":
-            "enter",
+                "enter",
             "comment":
-            comment
+                comment
         })
         card = [{
             "type": "card",
@@ -310,11 +310,11 @@ async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
             "who": (await get_game_id(msg.author_id))[0],
             "executor": (await get_game_id(msg.author_id))[0],
             "which_boss":
-            int(which_boss),
+                int(which_boss),
             "type":
-            "waiting",
+                "waiting",
             "comment":
-            comment
+                comment
         })
         card = [{
             "type": "card",
