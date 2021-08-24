@@ -455,7 +455,7 @@ async def daidaoLogin(msg: TextMsg, *args):
 
 
 @bot.command('下号')
-async def daidaoLogout(msg: TextMsg):
+async def daidaoLogout(msg: TextMsg, *args):
     if not is_shaidao_mode:
         return
     
@@ -574,7 +574,7 @@ async def daidaoAll(msg: TextMsg):
 
 
 @bot.command('删除代刀')
-async def daidaoDelet(msg: TextMsg):
+async def daidaoDelet(msg: TextMsg, *args):
     if not is_shaidao_mode:
         return
     
