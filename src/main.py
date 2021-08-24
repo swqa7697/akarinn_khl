@@ -586,10 +586,13 @@ async def daidaoDelet(msg: TextMsg, *args):
     elif len(msg.mention) > 1:
         await msg.reply('一次仅能删除一名刀手的代刀记录；如需删除**所有**代刀记录，请使用清除代刀指令')
     else:
+        record = 0
         for person in daidao_status:
-            if daidao_status[person] == sender:
+            if daidao_status[person] == msg.author_id:
                 del daidao_status[person]
-        await msg.reply('已删除代刀记录')
+                record += 1
+        rep = "已删除" + str(record) + "条代刀记录"
+        await msg.reply(rep)
 
 
 @bot.command('清除代刀')
