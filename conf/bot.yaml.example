@@ -13,4 +13,4 @@ khl:
 
 extra:
   is_shaidao_mode: False # 适应超前排的满筛模式，关闭部分功能（报刀等）并开启代刀相关功能
-  privileged_roles: [] # List[int] 填入管理角色id，部分功能只相应此列表中的角色
+  admins: [] # List[str] 填入管理员的author id，部分功能只响应此列表中的用户

@@ -10,7 +10,7 @@ from req import get_status, today_battle_count, today_battle_logs, add_member, g
 bot = Bot(cert=Cert(**conf_khl()))
 
 is_shaidao_mode = conf_enable_shaidao()
-pRoles = conf_extra()['privileged_roles']
+admins = conf_extra()['admins']
 
 def pcr_today() -> date:
     return date.today() - timedelta(hours=(conf_general()['time_zone'] - 3))
@@ -438,7 +438,7 @@ async def daidaoLogin(msg: TextMsg, *args):
             await msg.reply_card(card)
         else:
             #可以上号，记录上号情况
-            daidao_status[person] == sender
+            daidao_status[person] = sender
             card = [{
                 "type": "card",
                 "theme": "success",
@@ -578,11 +578,7 @@ async def daidaoDelet(msg: TextMsg):
     if not is_shaidao_mode:
         return
     
-    senderOK = False
-    for role in msg.extra[roles]:
-        if role in pRoles:
-            senderOK = True
-    if not senderOK:
+    if msg.author_id not in admins:
         return
     
     if not msg.mention:
@@ -601,11 +597,7 @@ async def daidaoClear(msg: TextMsg):
     if not is_shaidao_mode:
         return
     
-    senderOK = False
-    for role in msg.roles:
-        if role in pRoles:
-            senderOK = True
-    if not senderOK:
+    if msg.author_id not in admins:
         return
     
     global daidao_status
