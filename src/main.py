@@ -438,7 +438,7 @@ async def daidaoLogin(msg: TextMsg):
             await msg.reply_card(card)
         else:
             #可以上号，记录上号情况
-            daidao_status[person] = sender
+            daidao_status[person] == sender
             card = [{
                 "type": "card",
                 "theme": "success",
@@ -514,7 +514,7 @@ async def daidaoSender(msg: TextMsg):
     sender = msg.author_id
     people = []
     for person in daidao_status:
-        if daidao_status[person] = sender:
+        if daidao_status[person] == sender:
             people.append(person)
     if len(people) == 0:
         await msg.reply('您当前没有代刀')
@@ -591,7 +591,7 @@ async def daidaoDelet(msg: TextMsg):
         await msg.reply('一次仅能删除一名刀手的代刀记录；如需删除**所有**代刀记录，请使用清除代刀指令')
     else:
         for person in daidao_status:
-            if daidao_status[person] = sender:
+            if daidao_status[person] == sender:
                 del daidao_status[person]
         await msg.reply('已删除代刀记录')
 
