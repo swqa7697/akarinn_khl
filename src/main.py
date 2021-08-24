@@ -17,6 +17,9 @@ def pcr_today() -> date:
 
 @bot.command(name='状态')
 async def info(msg: TextMsg):
+    if is_shaidao_mode == True:
+        return
+    
     status = await get_status()
     count = await today_battle_count()
     logs = await today_battle_logs()
@@ -81,6 +84,9 @@ async def info(msg: TextMsg):
 
 @bot.command(name='加入公会', aliases=['加入工会'])
 async def join_clan(msg: TextMsg, game_id: str):
+    if is_shaidao_mode == True:
+        return
+    
     try:
         await add_member({
             "game_id": int(game_id),
@@ -94,6 +100,9 @@ async def join_clan(msg: TextMsg, game_id: str):
 
 @bot.command(name='报刀')
 async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
+    if is_shaidao_mode == True:
+        return
+    
     status = await get_status()
 
     match = re.match(r'(\d+)([Ww万Kk千])?', dmg)
@@ -166,6 +175,9 @@ async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
 
 @bot.command('sl', aliases=['SL'])
 async def sl(msg: TextMsg, day: str = ''):
+    if is_shaidao_mode == True:
+        return
+    
     real_day = pcr_today()
     if day == '昨天':
         real_day = real_day - timedelta(1)
@@ -203,6 +215,9 @@ async def sl(msg: TextMsg, day: str = ''):
 
 @bot.command('尾刀')
 async def weidao(msg: TextMsg, which_boss: str, day: str = ''):
+    if is_shaidao_mode == True:
+        return
+    
     which_boss = int(which_boss)
     status = await get_status()
 
@@ -337,6 +352,9 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
 
 @bot.command('挂树')
 async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
+    if is_shaidao_mode == True:
+        return
+    
     try:
         await commit_current_battle({
             "who": (await get_game_id(msg.author_id))[0],
@@ -374,6 +392,9 @@ async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
 
 @bot.command('查进')
 async def check_enter(msg: TextMsg):
+    if is_shaidao_mode == True:
+        return
+    
     resp = await get_current_battle()
     if not resp:
         await msg.reply(f'当前无人进刀')
