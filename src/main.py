@@ -302,6 +302,32 @@ async def enter(msg: TextMsg, which_boss: str, comment: str = ''):
 
     await msg.reply_card(card)
 
+@bot.command('进刀')
+async def enter(msg: TextMsg):
+    mentions = msg.mention()
+	
+	if not mentions:
+	    card = [{
+            "type": "card",
+            "theme": "danger",
+            "size": "lg",
+            "modules": [{
+                "type": "section",
+                "text": {
+                    "type": "paragraph",
+                    "cols": 2,
+                    "fields": [{
+                        "type": "kmarkdown",
+                        "content": "**进刀失败**\n请勿进入实战！"
+                    },
+                    {
+                        "type": "kmarkdown",
+                        "content": "**原因**\n请@被代刀人"
+                    }]
+                }
+            }]
+        }]
+	    await msg.reply_card(card)
 
 @bot.command('挂树')
 async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
