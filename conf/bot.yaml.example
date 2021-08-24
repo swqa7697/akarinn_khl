@@ -10,3 +10,7 @@ khl:
   client_id: 'xxxxxxxxxxx'
   token: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
   client_secret: 'xxxxxxxxxxxxxx'
+
+extra:
+  is_shaidao_mode: False
+  # 适应超前排的满筛模式，关闭需公会验证的功能（报刀等）并开启代刀相关功能

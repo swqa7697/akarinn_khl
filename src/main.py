@@ -3,12 +3,13 @@ from datetime import datetime, date, timedelta
 
 from khl import Bot, Cert, TextMsg, logger
 
-from config import conf_general, conf_khl
+from config import conf_general, conf_khl, conf_enable_shaidao
 from req import get_status, today_battle_count, today_battle_logs, add_member, get_game_id, commit_battle, \
     commit_current_battle, get_current_battle
 
 bot = Bot(cert=Cert(**conf_khl()))
 
+is_shaidao_mode = conf_enable_shaidao()
 
 def pcr_today() -> date:
     return date.today() - timedelta(hours=(conf_general()['time_zone'] - 3))
@@ -267,67 +268,72 @@ async def weidao(msg: TextMsg, which_boss: str, day: str = ''):
 
 
 @bot.command('进刀')
-async def enter(msg: TextMsg, which_boss: str, comment: str = ''):
-    try:
-        await commit_current_battle({
-            "who": (await get_game_id(msg.author_id))[0],
-            "executor": (await get_game_id(msg.author_id))[0],
-            "which_boss":
-                int(which_boss),
-            "type":
-                "enter",
-            "comment":
-                comment
-        })
-        card = [{
-            "type": "card",
-            "theme": "info",
-            "size": "lg",
-            "modules": [{
-                "type": "section",
-                "text": f"成功进刀"
+async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
+    if is_shaidao_mode == False:
+    
+        try:
+            if not which_boss:
+                raise Exception("arg 'which_boss' is required")
+            
+            await commit_current_battle({
+                "who": (await get_game_id(msg.author_id))[0],
+                "executor": (await get_game_id(msg.author_id))[0],
+                "which_boss":
+                    int(which_boss),
+                "type":
+                    "enter",
+                "comment":
+                    comment
+            })
+            card = [{
+                "type": "card",
+                "theme": "info",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": f"成功进刀"
+                }]
             }]
-        }]
-    except Exception as e:
-        print(e)
-        card = [{
-            "type": "card",
-            "theme": "danger",
-            "size": "lg",
-            "modules": [{
-                "type": "section",
-                "text": f"进刀失败：{e.args}"
+        except Exception as e:
+            print(e)
+            card = [{
+                "type": "card",
+                "theme": "danger",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": f"进刀失败：{e.args}"
+                }]
             }]
-        }]
 
-    await msg.reply_card(card)
-
-@bot.command('进刀')
-async def enter(msg: TextMsg):
-    mentions = msg.mention()
-	
-	if not mentions:
-	    card = [{
-            "type": "card",
-            "theme": "danger",
-            "size": "lg",
-            "modules": [{
-                "type": "section",
-                "text": {
-                    "type": "paragraph",
-                    "cols": 2,
-                    "fields": [{
-                        "type": "kmarkdown",
-                        "content": "**进刀失败**\n请勿进入实战！"
-                    },
-                    {
-                        "type": "kmarkdown",
-                        "content": "**原因**\n请@被代刀人"
-                    }]
-                }
+        await msg.reply_card(card)
+    
+    else:
+        mentions = msg.mention()
+        
+        if not mentions:
+            card = [{
+                "type": "card",
+                "theme": "danger",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "paragraph",
+                        "cols": 2,
+                        "fields": [{
+                            "type": "kmarkdown",
+                            "content": "**进刀失败**\n请勿进入实战！"
+                        },
+                        {
+                            "type": "kmarkdown",
+                            "content": "**原因**\n请@被代刀人"
+                        }]
+                    }
+                }]
             }]
-        }]
-	    await msg.reply_card(card)
+            await msg.reply_card(card)
+
 
 @bot.command('挂树')
 async def tree(msg: TextMsg, which_boss: str, comment: str = ''):

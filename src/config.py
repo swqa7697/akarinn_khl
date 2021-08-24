@@ -13,3 +13,6 @@ def api_root() -> dict:
 
 def conf_khl() -> dict:
     return bot_conf['khl']
+
+def conf_enable_shaidao() -> bool:
+    return bot_conf['extra']['is_shaidao_mode']
