@@ -3,13 +3,14 @@ from datetime import datetime, date, timedelta
 
 from khl import Bot, Cert, TextMsg, logger
 
-from config import conf_general, conf_khl, conf_enable_shaidao
+from config import conf_general, conf_khl, conf_extra, conf_enable_shaidao
 from req import get_status, today_battle_count, today_battle_logs, add_member, get_game_id, commit_battle, \
     commit_current_battle, get_current_battle
 
 bot = Bot(cert=Cert(**conf_khl()))
 
 is_shaidao_mode = conf_enable_shaidao()
+pRoles = conf_extra()['privileged_roles']
 
 def pcr_today() -> date:
     return date.today() - timedelta(hours=(conf_general()['time_zone'] - 3))
@@ -17,7 +18,7 @@ def pcr_today() -> date:
 
 @bot.command(name='状态')
 async def info(msg: TextMsg):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     status = await get_status()
@@ -84,7 +85,7 @@ async def info(msg: TextMsg):
 
 @bot.command(name='加入公会', aliases=['加入工会'])
 async def join_clan(msg: TextMsg, game_id: str):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     try:
@@ -100,7 +101,7 @@ async def join_clan(msg: TextMsg, game_id: str):
 
 @bot.command(name='报刀')
 async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     status = await get_status()
@@ -175,7 +176,7 @@ async def post_battle_commit(msg: TextMsg, boss: str, dmg: str, day: str = ''):
 
 @bot.command('sl', aliases=['SL'])
 async def sl(msg: TextMsg, day: str = ''):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     real_day = pcr_today()
@@ -215,7 +216,7 @@ async def sl(msg: TextMsg, day: str = ''):
 
 @bot.command('尾刀')
 async def weidao(msg: TextMsg, which_boss: str, day: str = ''):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     which_boss = int(which_boss)
@@ -284,8 +285,7 @@ async def weidao(msg: TextMsg, which_boss: str, day: str = ''):
 
 @bot.command('进刀')
 async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
-    if is_shaidao_mode == False:
-    
+    if not is_shaidao_mode:
         try:
             if not which_boss:
                 raise Exception("arg 'which_boss' is required")
@@ -352,7 +352,7 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
 
 @bot.command('挂树')
 async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     try:
@@ -392,7 +392,7 @@ async def tree(msg: TextMsg, which_boss: str, comment: str = ''):
 
 @bot.command('查进')
 async def check_enter(msg: TextMsg):
-    if is_shaidao_mode == True:
+    if is_shaidao_mode:
         return
     
     resp = await get_current_battle()
@@ -402,6 +402,215 @@ async def check_enter(msg: TextMsg):
         [f"{i.who} {i.which_boss} {i.type} {i.comment}" for i in resp])
     await msg.reply(f'当前进刀情况：\n{rep_str}')
 
+
+daidao_status = dict()
+
+@bot.command('上号')
+async def daidaoLogin(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    sender = msg.author_id
+    for person in msg.mention:
+        if person in daidao_status:
+            #正在代刀，不可上号
+            daidao_message = "**负责刀手**\n(met)" + daidao_status[person] + "(met)"
+            card = [{
+                "type": "card",
+                "theme": "danger",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "paragraph",
+                        "cols": 2,
+                        "fields": [{
+                            "type": "kmarkdown",
+                            "content": "**请勿上号！**\n此账号正在代刀"
+                        },
+                        {
+                            "type": "kmarkdown",
+                            "content": daidao_message
+                        }]
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+        else:
+            #可以上号，记录上号情况
+            daidao_status[person] = sender
+            card = [{
+                "type": "card",
+                "theme": "success",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "kmarkdown",
+                        "content": "可以上号，已记录"
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+
+
+@bot.command('下号')
+async def daidaoLogout(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    sender = msg.author_id
+    for person in msg.mention:
+        if not person in daidao_status:
+            card = [{
+                "type": "card",
+                "theme": "warning",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "kmarkdown",
+                        "content": "该账号没有代刀"
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+        elif daidao_status[person] != sender:
+            card = [{
+                "type": "card",
+                "theme": "warning",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "kmarkdown",
+                        "content": "该账号不由您代刀"
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+        else:
+            del daidao_status[person]
+            card = [{
+                "type": "card",
+                "theme": "success",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "kmarkdown",
+                        "content": "已记录下号，请及时**回到登录界面**并删除登录记录，防止重开游戏自动登录原账号"
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+
+
+@bot.command('我的代刀')
+async def daidaoSender(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    sender = msg.author_id
+    people = []
+    for person in daidao_status:
+        if daidao_status[person] = sender:
+            people.append(person)
+    if len(people) == 0:
+        await msg.reply('您当前没有代刀')
+    else:
+        daidao_message = "**您的代刀**"
+        for person in people:
+            daidao_message += "\n(met)" + person + "(met)"
+        
+        card = [{
+            "type": "card",
+            "theme": "success",
+            "size": "lg",
+            "modules": [{
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
+                    "content": daidao_message
+                }
+            }]
+        }]
+        await msg.reply_card(card)
+
+@bot.command('所有代刀')
+async def daidaoAll(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    if not daidao_status:
+        await msg.reply('当前没有代刀记录')
+    else:
+        daidao_message1 = "**刀手**"
+        daidao_message2 = "**被代刀账号**"
+        for k, v in sorted(daidao_status.items(), key = lambda item: item[1]):
+            daidao_message1 += "\n(met)" + v + "(met)"
+            daidao_message2 += "\n(met)" + k + "(met)"
+        card = [{
+            "type": "card",
+            "theme": "success",
+            "size": "lg",
+            "modules": [{
+                "type": "section",
+                "text": {
+                    "type": "paragraph",
+                    "cols": 2,
+                    "fields": [{
+                        "type": "kmarkdown",
+                        "content": daidao_message1
+                    },
+                    {
+                        "type": "kmarkdown",
+                        "content": daidao_message2
+                    }]
+                }
+            }]
+        }]
+        await msg.reply_card(card)
+
+
+@bot.command('删除代刀')
+async def daidaoDelet(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    senderOK = False
+    for role in msg.extra.roles:
+        if role in pRoles:
+            senderOK = True
+    if not senderOK:
+        return
+    
+    if not msg.mention:
+        await msg.reply('请@想要删除代刀记录的刀手')
+    elif len(msg.mention) > 1:
+        await msg.reply('一次仅能删除一名刀手的代刀记录；如需删除**所有**代刀记录，请使用清除代刀指令')
+    else:
+        for person in daidao_status:
+            if daidao_status[person] = sender:
+                del daidao_status[person]
+        await msg.reply('已删除代刀记录')
+
+
+@bot.command('清除代刀')
+async def daidaoClear(msg: TextMsg):
+    if not is_shaidao_mode:
+        return
+    
+    senderOK = False
+    for role in msg.extra.roles:
+        if role in pRoles:
+            senderOK = True
+    if not senderOK:
+        return
+    
+    global daidao_status
+    daidao_status = {}
+    await msg.reply('已重置代刀记录')
 
 logger.enable_debug()
 
