@@ -309,7 +309,7 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
         await msg.reply_card(card)
     
     else:
-        mentions = msg.mention()
+        mentions = msg.mention
         
         if not mentions:
             card = [{
