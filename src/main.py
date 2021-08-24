@@ -346,31 +346,31 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
                 }]
             }]
             await msg.reply_card(card)
-        elif len(msg.mention) > 1:
-            card = [{
-                "type": "card",
-                "theme": "danger",
-                "size": "lg",
-                "modules": [{
-                    "type": "section",
-                    "text": {
-                        "type": "paragraph",
-                        "cols": 2,
-                        "fields": [{
-                            "type": "kmarkdown",
-                            "content": "**进刀失败**\n请勿进入实战！"
-                        },
-                        {
-                            "type": "kmarkdown",
-                            "content": "**原因**\n请用一张截图搭配一条进刀记录，避免混淆"
-                        }]
-                    }
-                }]
-            }]
-            await msg.reply_card(card)
-        else:
+        elif len(msg.mention) == 1:
             mentioned = msg.mention[0]
-            if daidao_status[mentioned] != msg.author_id:
+            if mentioned not in daidao_status:
+                card = [{
+                    "type": "card",
+                    "theme": "danger",
+                    "size": "lg",
+                    "modules": [{
+                        "type": "section",
+                        "text": {
+                            "type": "paragraph",
+                            "cols": 2,
+                            "fields": [{
+                                "type": "kmarkdown",
+                                "content": "**进刀失败**\n请勿进入实战！"
+                            },
+                            {
+                                "type": "kmarkdown",
+                                "content": "**原因**\n请先记录上号"
+                            }]
+                        }
+                    }]
+                }]
+                await msg.reply_card(card)
+            elif daidao_status[mentioned] != msg.author_id:
                 daidao_message = "**负责刀手**\n(met)" + daidao_status[mentioned] + "(met)"
                 card = [{
                     "type": "card",
