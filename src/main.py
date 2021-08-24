@@ -324,9 +324,7 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
         await msg.reply_card(card)
     
     else:
-        mentions = msg.mention
-        
-        if not mentions:
+        if not msg.mention:
             card = [{
                 "type": "card",
                 "theme": "danger",
@@ -348,6 +346,71 @@ async def enter(msg: TextMsg, which_boss: str = '', comment: str = ''):
                 }]
             }]
             await msg.reply_card(card)
+        elif len(msg.mention) > 1:
+            card = [{
+                "type": "card",
+                "theme": "danger",
+                "size": "lg",
+                "modules": [{
+                    "type": "section",
+                    "text": {
+                        "type": "paragraph",
+                        "cols": 2,
+                        "fields": [{
+                            "type": "kmarkdown",
+                            "content": "**进刀失败**\n请勿进入实战！"
+                        },
+                        {
+                            "type": "kmarkdown",
+                            "content": "**原因**\n请用一张截图搭配一条进刀记录，避免混淆"
+                        }]
+                    }
+                }]
+            }]
+            await msg.reply_card(card)
+        else:
+            mentioned = msg.mention[0]
+            if daidao_status[mentioned] != msg.author_id:
+                daidao_message = "**负责刀手**\n(met)" + daidao_status[mentioned] + "(met)"
+                card = [{
+                    "type": "card",
+                    "theme": "danger",
+                    "size": "lg",
+                    "modules": [{
+                        "type": "section",
+                        "text": {
+                            "type": "paragraph",
+                            "cols": 3,
+                            "fields": [{
+                                "type": "kmarkdown",
+                                "content": "**进刀失败**\n请勿进入实战！"
+                            },
+                            {
+                                "type": "kmarkdown",
+                                "content": "**原因**\n此账号正在代刀"
+                            },
+                            {
+                                "type": "kmarkdown",
+                                "content": daidao_message
+                            }]
+                        }
+                    }]
+                }]
+                await msg.reply_card(card)
+            else:
+                card = [{
+                    "type": "card",
+                    "theme": "success",
+                    "size": "lg",
+                    "modules": [{
+                        "type": "section",
+                        "text": {
+                            "type": "kmarkdown",
+                            "content": "**进刀成功**\n请确认阵容截图无误后进入实战"
+                        }
+                    }]
+                }]
+                await msg.reply_card(card)
 
 
 @bot.command('挂树')
@@ -579,6 +642,19 @@ async def daidaoDelet(msg: TextMsg, *args):
         return
     
     if msg.author_id not in admins:
+        card = [{
+            "type": "card",
+            "theme": "warning",
+            "size": "lg",
+            "modules": [{
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
+                    "content": "无管理权限"
+                }
+            }]
+        }]
+        await msg.reply_card(card)
         return
     
     if not msg.mention:
@@ -600,6 +676,19 @@ async def daidaoClear(msg: TextMsg):
         return
     
     if msg.author_id not in admins:
+        card = [{
+            "type": "card",
+            "theme": "warning",
+            "size": "lg",
+            "modules": [{
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
+                    "content": "无管理权限"
+                }
+            }]
+        }]
+        await msg.reply_card(card)
         return
     
     global daidao_status
