@@ -604,7 +604,7 @@ async def daidaoClear(msg: TextMsg):
     senderOK = False
     for i in msg.items():
         print(i)
-    for role in msg.extra[roles]:
+    for role in msg.roles:
         if role in pRoles:
             senderOK = True
     if not senderOK:
