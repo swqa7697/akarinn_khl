@@ -590,6 +590,8 @@ async def daidaoDelet(msg: TextMsg, *args):
         if to_be_del in daidao_status:
             del daidao_status[to_be_del]
             await msg.reply('已删除代刀记录')
+        else:
+            await msg.reply('该账号没有代刀')
 
 
 @bot.command('清除代刀')
