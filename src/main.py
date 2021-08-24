@@ -406,7 +406,7 @@ async def check_enter(msg: TextMsg):
 daidao_status = dict()
 
 @bot.command('上号')
-async def daidaoLogin(msg: TextMsg):
+async def daidaoLogin(msg: TextMsg, *args):
     if not is_shaidao_mode:
         return
     
@@ -579,7 +579,7 @@ async def daidaoDelet(msg: TextMsg):
         return
     
     senderOK = False
-    for role in msg.extra.roles:
+    for role in msg.extra[roles]:
         if role in pRoles:
             senderOK = True
     if not senderOK:
@@ -602,7 +602,7 @@ async def daidaoClear(msg: TextMsg):
         return
     
     senderOK = False
-    for role in msg.extra.roles:
+    for role in msg.extra[roles]:
         if role in pRoles:
             senderOK = True
     if not senderOK:
